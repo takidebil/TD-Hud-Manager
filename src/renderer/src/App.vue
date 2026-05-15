@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import BaseConfirmation from './components/base/BaseConfirmation.vue';
-import AppSidebar from './components/AppSidebar.vue';
+import TopNavBar from './components/TopNavBar.vue';
 </script>
 
 <template>
-  <div class="flex h-screen bg-background text-text-main">
+  <div class="flex flex-col h-screen bg-background text-text-main">
     <BaseConfirmation />
-    <AppSidebar />
+    <TopNavBar />
     <main class="flex-1 overflow-y-auto custom-scrollbar">
       <router-view />
     </main>
@@ -15,16 +15,17 @@ import AppSidebar from './components/AppSidebar.vue';
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 12px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+  background: #0a0a0a;
+  border-left: 1px solid #333;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #3f3f46;
-  border-radius: 10px;
+  background: #333;
+  border: 2px solid #0a0a0a;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: #00ff00;
 }
 </style>

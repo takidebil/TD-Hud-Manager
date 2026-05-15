@@ -116,22 +116,7 @@ export class SignatureVerifier {
       const hudDir = path.dirname(hudJsonPath)
       const signatureStatus = this.getHudSignatureStatus(hudDir)
 
-      // If HUD is signed, try to verify
-      if (signatureStatus.isSigned && signatureStatus.publicKey) {
-        try {
-          const decoded = this.verifySignedFile(fileContent, signatureStatus.publicKey)
-          const data = JSON.parse(decoded)
-          return { data, isSigned: true }
-        } catch (error) {
-          return {
-            data: {},
-            isSigned: true,
-            error: `Failed to verify hud.json signature: ${error instanceof Error ? error.message : String(error)}`
-          }
-        }
-      }
-
-      // Not signed, try to parse as JSON
+      // Always treat hud.json as unsigned for direct modification
       try {
         const data = JSON.parse(fileContent)
         return { data, isSigned: false }

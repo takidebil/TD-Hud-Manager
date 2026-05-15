@@ -36,11 +36,11 @@ export function signedHudMiddleware(req: Request, res: Response, next: NextFunct
     return next()
   }
 
-  // Only verify specific file types that are actually signed
-  const filesToVerify = ['.js', '.css', 'hud.json']
+  // Only verify specific file types that are actually signed, exclude hud.json
+  const filesToVerify = ['.js', '.css']
   const shouldVerify = filesToVerify.some((ext) => url.endsWith(ext) || url.includes(ext + '?'))
 
-  // If file type is not signed, pass through to static serving
+  // If file type is not signed (or is hud.json), pass through to static serving
   if (!shouldVerify) {
     return next()
   }

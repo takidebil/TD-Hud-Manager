@@ -121,132 +121,109 @@ const handleSort = (header: { key: string; sortable?: boolean }) => {
 </script>
 
 <template>
-  <div class="bg-zinc-800 rounded-xl border border-zinc-700 overflow-hidden">
+  <div class="bg-black border border-zinc-800 overflow-hidden">
     <!-- Search bar -->
-    <div v-if="searchable" class="px-4 py-3 border-b border-zinc-700 bg-surface/30">
-      <div class="relative">
-        <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-        </svg>
+    <div v-if="searchable" class="px-4 py-2 border-b border-zinc-800 bg-zinc-950">
+      <div class="relative flex items-center gap-2">
+        <span class="text-primary font-bold text-xs uppercase">Search_></span>
         <input
           v-model="searchQuery"
           type="text"
           :placeholder="searchPlaceholder"
-          class="w-full bg-zinc-800 border border-zinc-700 text-zinc-200 placeholder-zinc-500 rounded-lg pl-9 pr-9 py-2 text-sm focus:outline-none focus:border-primary transition-colors"
+          class="flex-1 bg-transparent text-white placeholder-zinc-700 py-1 text-sm focus:outline-none"
         />
         <button
           v-if="searchQuery"
           @click="searchQuery = ''"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+          class="text-zinc-500 hover:text-red-500 transition-none"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+          [X]
         </button>
       </div>
     </div>
 
-    <div v-if="isLoading" class="p-12 text-center text-zinc-400 italic">
-      Loading data...
+    <div v-if="isLoading" class="p-12 text-center text-primary animate-pulse font-bold uppercase">
+      >> LOADING_SYSTEM_DATA...
     </div>
 
-    <div v-else-if="filteredItems.length === 0" class="p-12 text-center text-zinc-400">
-      <span v-if="searchQuery">No results for <span class="text-zinc-200 font-medium">"{{ searchQuery }}"</span>.</span>
-      <span v-else>No records found.</span>
+    <div v-else-if="filteredItems.length === 0" class="p-12 text-center text-zinc-500 font-bold uppercase">
+      <span v-if="searchQuery">!! NO_RESULTS_FOR: "{{ searchQuery }}"</span>
+      <span v-else>!! NO_RECORDS_FOUND</span>
     </div>
 
     <div v-else class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-surface/50 border-b border-zinc-700">
+          <tr class="bg-zinc-900 border-b border-zinc-800">
             <!-- Checkbox column -->
-            <th v-if="selectable" class="px-4 py-4 w-10">
+            <th v-if="selectable" class="px-4 py-3 w-10">
               <input
                 type="checkbox"
                 :checked="allSelected"
                 :indeterminate="someSelected"
                 @change="toggleSelectAll"
-                class="size-3.5 rounded border-zinc-600 bg-zinc-700 accent-primary cursor-pointer"
+                class="size-4 border-zinc-700 bg-black accent-primary cursor-pointer"
               />
             </th>
             <th
               v-for="header in headers"
               :key="header.key"
               :class="[
-                'px-6 py-4 text-xs font-bold capitalize text-zinc-400',
-                header.sortable ? 'cursor-pointer select-none hover:text-zinc-200 transition-colors' : ''
+                'px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500',
+                header.sortable ? 'cursor-pointer select-none hover:text-primary transition-none' : ''
               ]"
               @click="handleSort(header)"
             >
               <span class="flex items-center gap-1">
                 {{ header.label }}
-                <!-- Sort indicator: only show when actively sorting this column -->
-                <svg
-                  v-if="sortKey === header.key"
-                  :class="['size-2.5 text-primary transition-transform', sortDir === 'desc' ? 'rotate-180' : '']"
-                  viewBox="0 0 10 6"
-                  fill="currentColor"
-                >
-                  <path d="M5 0L10 6H0L5 0Z"/>
-                </svg>
+                <!-- Sort indicator -->
+                <span v-if="sortKey === header.key" class="text-primary">
+                   {{ sortDir === 'asc' ? '↑' : '↓' }}
+                </span>
               </span>
             </th>
-            <th class="px-6 py-4 text-xs font-bold capitalize text-zinc-400 text-right">Actions</th>
+            <th class="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-zinc-500 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-zinc-700/50">
+        <tbody class="divide-y divide-zinc-900">
           <tr
             v-for="item in pagedItems"
             :key="item._id"
             :class="[
-              'transition-colors group',
+              'transition-none group',
               selectable && isSelected(item._id || item.id)
-                ? 'bg-primary/10 hover:bg-primary/15'
-                : 'hover:bg-zinc-700/30'
+                ? 'bg-primary/5 text-primary'
+                : 'hover:bg-zinc-950'
             ]"
           >
             <!-- Checkbox cell -->
-            <td v-if="selectable" class="px-4 py-4">
+            <td v-if="selectable" class="px-4 py-3">
               <input
                 type="checkbox"
                 :checked="isSelected(item._id || item.id)"
                 @change="toggleSelectItem(item._id || item.id)"
-                class="size-3.5 rounded border-zinc-600 bg-zinc-700 accent-primary cursor-pointer"
+                class="size-4 border-zinc-700 bg-black accent-primary cursor-pointer"
               />
             </td>
-            <td v-for="header in headers" :key="header.key" class="px-4 py-2 text-sm text-zinc-300">
+            <td v-for="header in headers" :key="header.key" class="px-6 py-2 text-sm">
               <slot :name="`cell-${header.key}`" :item="item">
                 {{ item[header.key] }}
               </slot>
             </td>
 
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-1">
+            <td class="px-6 py-2 text-right">
+              <div class="flex items-center justify-end gap-2 opacity-30 group-hover:opacity-100">
                 <slot name="row-actions" :item="item" />
-                <BaseButton
+                <button
                   @click="$emit('edit', item)"
-                  title="Edit"
-                  variant="ghost"
-                  size="xs"
-                  >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                </BaseButton>
-                <BaseButton
-                @click="$emit('delete', item._id || item.id)"
-                title="Delete"
-                variant="ghost"
-                size="xs"
+                  class="text-xs font-bold text-zinc-500 hover:text-white uppercase"
+                  >[EDIT]</button
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6M14 11v6"/>
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                  </svg>
-                </BaseButton>
+                <button
+                  @click="$emit('delete', item._id || item.id)"
+                  class="text-xs font-bold text-zinc-500 hover:text-red-500 uppercase"
+                  >[DEL]</button
+                >
               </div>
             </td>
           </tr>
@@ -255,66 +232,52 @@ const handleSort = (header: { key: string; sortable?: boolean }) => {
     </div>
 
     <!-- Pagination footer -->
-    <div v-if="!isLoading && filteredItems.length > 0" class="px-6 py-3 border-t border-zinc-700 flex flex-wrap items-center justify-between gap-3 bg-surface/30">
+    <div v-if="!isLoading && filteredItems.length > 0" class="px-6 py-2 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3 bg-zinc-950">
       <!-- Left: rows per page + count -->
-      <div class="flex items-center gap-3 text-sm text-zinc-400">
-        <span>Rows per page:</span>
+      <div class="flex items-center gap-3 text-[10px] font-bold uppercase text-zinc-500">
+        <span>Page_Size:</span>
         <select
           v-model="pageSize"
-          class="bg-zinc-800 border border-zinc-700 text-zinc-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-primary"
+          class="bg-black border border-zinc-800 text-primary px-1 py-0.5 focus:outline-none"
         >
           <option v-for="opt in PAGE_SIZE_OPTIONS" :key="opt" :value="opt">{{ opt }}</option>
         </select>
       </div>
 
       <!-- Right: page controls -->
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-2">
         <button
           @click="currentPage = 1"
           :disabled="currentPage === 1"
-          class="px-2 py-1 rounded text-zinc-400 hover:text-text-main hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          title="First page"
+          class="text-[10px] font-bold uppercase text-zinc-500 hover:text-primary disabled:opacity-20 transition-none"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7M18 19l-7-7 7-7"/></svg>
+          [FIRST]
         </button>
         <button
           @click="currentPage--"
           :disabled="currentPage === 1"
-          class="px-2 py-1 rounded text-zinc-400 hover:text-text-main hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          title="Previous page"
+          class="text-[10px] font-bold uppercase text-zinc-500 hover:text-primary disabled:opacity-20 transition-none"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          [PREV]
         </button>
 
-        <template v-for="p in visiblePages" :key="p">
-          <span v-if="p === '…'" class="px-1 text-zinc-600 select-none">…</span>
-          <button
-            v-else
-            @click="currentPage = p as number"
-            :class="[
-              'w-8 h-8 rounded text-sm font-medium transition-colors',
-              currentPage === p
-                ? 'bg-primary text-text-main'
-                : 'text-zinc-400 hover:text-text-main hover:bg-zinc-700'
-            ]"
-          >{{ p }}</button>
-        </template>
+        <span class="text-[10px] font-bold text-primary px-2">
+          PAGE {{ currentPage }} OF {{ totalPages }}
+        </span>
 
         <button
           @click="currentPage++"
           :disabled="currentPage === totalPages"
-          class="px-2 py-1 rounded text-zinc-400 hover:text-text-main hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          title="Next page"
+          class="text-[10px] font-bold uppercase text-zinc-500 hover:text-primary disabled:opacity-20 transition-none"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          [NEXT]
         </button>
         <button
           @click="currentPage = totalPages"
           :disabled="currentPage === totalPages"
-          class="px-2 py-1 rounded text-zinc-400 hover:text-text-main hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          title="Last page"
+          class="text-[10px] font-bold uppercase text-zinc-500 hover:text-primary disabled:opacity-20 transition-none"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M6 5l7 7-7 7"/></svg>
+          [LAST]
         </button>
       </div>
     </div>
