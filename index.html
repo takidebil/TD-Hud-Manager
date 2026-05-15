@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TD Echo • Fragmenty Księżyca</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+  <style>
+    body { background: linear-gradient(to bottom, #0a0a0a, #1a1a2e); color: #e0d4b0; font-family: serif; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+  </style>
+</head>
+<body class="min-h-screen p-8">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-4xl font-light tracking-widest text-center mb-12 opacity-80">TD HUD • Echo Zapomnianych Rund</h1>
+    
+    <div id="teams" class="grid grid-cols-2 gap-8 mb-12"></div>
+    
+    <div id="players" class="grid grid-cols-5 gap-4"></div>
+    
+    <div id="status" class="mt-8 text-center text-sm opacity-60"></div>
+  </div>
+
+  <script>
+    const socket = io('http://localhost:PORT'); // Zmień PORT na ten z Twojego TD-Hud-Manager (sprawdź w konsoli aplikacji)
+
+    function renderTeams(data) {
+      const left = data.map?.team_ct || {};
+      const right = data.map?.team_t || {};
+      document.getElementById('teams').innerHTML = `
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-xl font-light">\( {left.name || 'CT'} <span class="text-blue-400"> \){left.score || 0}</span></div>
+        </div>
+        <div class="glass rounded-2xl p-6 text-center">
+          <div class="text-xl font-light">\( {right.name || 'T'} <span class="text-orange-400"> \){right.score || 0}</span></div>
+        </div>
+      `;
+    }
+
+    function renderPlayers(data) {
+      const container = document.getElementById('players');
+      container.innerHTML = '';
+      
+      if (!data.allplayers) return;
+      
+      Object.values(data.allplayers).forEach(p => {
+        const healthColor = p.state?.health > 50 ? 'text-emerald-400' : p.state?.health > 20 ? 'text-amber-400' : 'text-red-500';
+        const div = document.createElement('div');
+        div.className = 'glass rounded-xl p-4 text-center hover:scale-105 transition';
+        div.innerHTML = `
+          <div class="text-sm opacity-70">${p.name}</div>
+          <div class="\( {healthColor} text-2xl font-light"> \){p.state?.health || 0}</div>
+          <div class="text-xs mt-2">${p.state?.round_kills || 0} K / ${p.match_stats?.kills || 0}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    socket.on('update', (data) => {
+      document.getElementById('status').textContent = `Runda ${data.map?.round || '?'} • ${data.map?.name || 'Brak mapy'}`;
+      renderTeams(data);
+      renderPlayers(data);
+    });
+
+    socket.on('connect', () => console.log('%cPołączono z księżycowym strumieniem...', 'color:#a0a0a0'));
+  </script>
+</body>
+</html>
